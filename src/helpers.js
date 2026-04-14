@@ -11,9 +11,7 @@ export const generateRandom = (amount, max) => {
   let arrRandoms = [];
   while (arrRandoms.length < amount){
     let random = Math.floor(Math.random() * max);
-    if (!arrRandoms.some(item => item === random)){
-      arrRandoms.push(random);
-    }
+    arrRandoms.push(random);
   }
   return arrRandoms;
 } 
