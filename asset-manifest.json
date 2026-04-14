@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/letter-pairs-memo/static/css/main.2f5ed7af.css",
+    "main.js": "/letter-pairs-memo/static/js/main.508ae03a.js",
+    "static/js/453.0cc9cb79.chunk.js": "/letter-pairs-memo/static/js/453.0cc9cb79.chunk.js",
+    "index.html": "/letter-pairs-memo/index.html",
+    "main.2f5ed7af.css.map": "/letter-pairs-memo/static/css/main.2f5ed7af.css.map",
+    "main.508ae03a.js.map": "/letter-pairs-memo/static/js/main.508ae03a.js.map",
+    "453.0cc9cb79.chunk.js.map": "/letter-pairs-memo/static/js/453.0cc9cb79.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.2f5ed7af.css",
+    "static/js/main.508ae03a.js"
+  ]
+}
