@@ -174,7 +174,7 @@ function App() {
       }
       <br/>
       <button onClick={() => controlPainel()} className="btn-large">{painel}</button>
-      {!onMemo && !onRecall && !onCheck ? <h6>by Willian Pessoa</h6> : <h6></h6>}
+      {!onMemo && !onRecall && !onCheck ? <h6>by Willian Pessoa, modified by Kittatam Saisaard</h6> : <h6></h6>}
     </div>
   );
 }
