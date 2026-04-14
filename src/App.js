@@ -3,7 +3,7 @@ import {useState, useEffect} from "react";
 import {formatTime, generateRandom} from "./helpers.js"
 
 const PAINEL = ["start", "memorized", "check", "do again"];
-const LETTERS = "ABCDEFGJKLMNOPQRSTUVWX";
+const LETTERS = "ABCDEFGJKL";
 
 function App() {
   const [level, setLevel] = useState(1);
