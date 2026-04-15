@@ -1,7 +1,7 @@
 # Letter Pair Memory Trainer
 
 ### This project has been modified for the practice of Rubik's Clock 7-Simul memo
-## Below is the orginal description of the project forked from Willian Pessoa
+## Below is the original description of the project forked from Willian Pessoa
 
 #### This project it's to solve a personal problem of practice my short memory to speed up my memo time in the 3BLD and MBLD solves.
 
