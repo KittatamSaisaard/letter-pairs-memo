@@ -60,10 +60,10 @@ function App() {
   // START PAINEL
   // function to change the level/ number of cards to display in the memo painel
   const controlLevel = (amount) =>{
-    if (level >= 1 && level <= 11){
+    if (level >= 1 && level <= 7){
       if (level === 1 && amount < 0){
         return
-      } else if (level === 11 && amount > 0){
+      } else if (level === 7 && amount > 0){
         return
       } else {
       setLevel(prev => prev + amount);
@@ -182,7 +182,7 @@ function App() {
 function StartPainel({level, controlLevel, timeMemo, timeRecall, onRight, numberAttempts, parcialResult}) {
   return(
     <div className="painel-start">
-      <h5>Put Your Desire Level (Max 11)</h5>
+      <h5>Put Your Desire Level (Max 7)</h5>
       <div className="painel-level">
         <button onClick={()=>controlLevel(-1)} className="waves-effect waves-light btn-large">
           <i className="material-icons">arrow_downward</i>
