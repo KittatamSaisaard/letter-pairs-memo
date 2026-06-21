@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/letter-pairs-memo/static/css/main.6425be32.css",
-    "main.js": "/letter-pairs-memo/static/js/main.b6046e19.js",
+    "main.css": "/letter-pairs-memo/static/css/main.cf3d83b4.css",
+    "main.js": "/letter-pairs-memo/static/js/main.ebeaf82d.js",
     "static/js/453.0cc9cb79.chunk.js": "/letter-pairs-memo/static/js/453.0cc9cb79.chunk.js",
     "index.html": "/letter-pairs-memo/index.html",
-    "main.6425be32.css.map": "/letter-pairs-memo/static/css/main.6425be32.css.map",
-    "main.b6046e19.js.map": "/letter-pairs-memo/static/js/main.b6046e19.js.map",
+    "main.cf3d83b4.css.map": "/letter-pairs-memo/static/css/main.cf3d83b4.css.map",
+    "main.ebeaf82d.js.map": "/letter-pairs-memo/static/js/main.ebeaf82d.js.map",
     "453.0cc9cb79.chunk.js.map": "/letter-pairs-memo/static/js/453.0cc9cb79.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.6425be32.css",
-    "static/js/main.b6046e19.js"
+    "static/css/main.cf3d83b4.css",
+    "static/js/main.ebeaf82d.js"
   ]
 }
