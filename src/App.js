@@ -1,9 +1,9 @@
 import './App.css';
 import {useState, useEffect} from "react";
-import {formatTime, generateRandom} from "./helpers.js"
+import {formatTime, generateRandom, generateRandomUnique} from "./helpers.js"
 
 const PAINEL = ["start", "memorized", "check", "do again"];
-const LETTERS = "ABCDEFGJKL";
+const DEFAULT_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWX";
 
 function App() {
   const [level, setLevel] = useState(3);
@@ -18,7 +18,21 @@ function App() {
   const [answers, setAnswers] = useState([]);
   const [onRight, setOnRight] = useState(null);
   const [numberAttempts, setNumberAttempts] = useState(0);
-  const [parcialResult, setParcialResult] = useState([0, 0])
+  const [parcialResult, setParcialResult] = useState([0, 0]);
+  const [weakPairs, setWeakPairs] = useState({});
+  const [weakPairsEnabled, setWeakPairsEnabled] = useState(true)
+  const [speechEnabled, setSpeechEnabled] = useState(false);
+  const [letters, setLetters] = useState(DEFAULT_LETTERS);
+  const [noDuplicateLetters, setNoDuplicateLetters] = useState(true);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Enter") controlPainel();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  })
+
 
   // CONTROL PAINEL
   const controlPainel = () => {
@@ -34,6 +48,7 @@ function App() {
         setPainel(PAINEL[2]); // preparer next painel
         setOnMemo(false); // turn off memo painel
         setOnRecall(true); // display recall painel
+        window.speechSynthesis.cancel();
         memoTimer(); // stop memo timer
         recallTimer(); // start recall timer
         break;
@@ -60,10 +75,10 @@ function App() {
   // START PAINEL
   // function to change the level/ number of cards to display in the memo painel
   const controlLevel = (amount) =>{
-    if (level >= 1 && level <= 7){
+    if (level >= 1 && level <= 11){
       if (level === 1 && amount < 0){
         return
-      } else if (level === 7 && amount > 0){
+      } else if (level === 11 && amount > 0){
         return
       } else {
       setLevel(prev => prev + amount);
@@ -73,20 +88,51 @@ function App() {
 
   // MEMORIZATION PAINEL
   const startPainelMemo = () => {
-    controlLetterPairs();
+    const pairs = controlLetterPairs();
     memoTimer();
+    if (speechEnabled) speakPairs(pairs);
+  }
+
+  const speakPairs = (pairs) => {
+    window.speechSynthesis.cancel();
+    pairs.forEach((pair) => {
+      const utterance = new SpeechSynthesisUtterance(pair.split("").join(" "));
+      utterance.rate = 0.8;
+      window.speechSynthesis.speak(utterance);
+    });
   }
 
   // function to generate ther cards to display
   const controlLetterPairs = () => {
-    let amount = level * 2;
+    const weakEntries = Object.entries(weakPairs);
+    const totalWeight = weakEntries.reduce((sum, [, w]) => sum + w, 0);
     let arrOfPairs = [];
-    let randomIndex = generateRandom(amount, LETTERS.length);
-    for (let i = 0; i < amount; i += 2){
-      let pair = LETTERS[randomIndex[i]]+LETTERS[randomIndex[i+1]];
-      arrOfPairs.push(pair)
+    for (let i = 0; i < level; i++) {
+      const useWeak = weakPairsEnabled && weakEntries.length > 0 && Math.random() < totalWeight / (totalWeight + 5);
+      let pair;
+
+      if (useWeak) {
+        let rand = Math.random() * totalWeight;
+        for (const [p, w] of weakEntries) {
+          rand -= w;
+          if (rand <= 0) { pair = p; break; }
+        }
+        if (!pair) pair = weakEntries[weakEntries.length - 1][0];
+      }
+
+      if (!pair || arrOfPairs.includes(pair)) {
+        let attempts = 0;
+        do {
+          const idx = noDuplicateLetters ? generateRandomUnique(2, letters.length) : generateRandom(2, letters.length);
+          pair = letters[idx[0]] + letters[idx[1]];
+          attempts++;
+        } while (arrOfPairs.includes(pair) && attempts < 50);
+      }
+
+      arrOfPairs.push(pair);
     }
     setLetterPairs(arrOfPairs);
+    return arrOfPairs;
   }
 
   // function to start/stop and time the memorization
@@ -136,6 +182,22 @@ function App() {
         setOnRight(false);
         setParcialResult(prev => [prev[0], prev[1] + 1]);
       }
+      if (weakPairsEnabled) {
+        setWeakPairs(prev => {
+          const updated = { ...prev };
+          for (let i = 0; i < letterPairs.length; i++) {
+            const pair = letterPairs[i];
+            const correct = tempArrAwnsers[i];
+            if (!correct) {
+              updated[pair] = Math.min((updated[pair] || 0) + 1, 5);
+            } else if (updated[pair]) {
+              updated[pair] -= 1;
+              if (updated[pair] === 0) delete updated[pair];
+            }
+          }
+return updated;
+        });
+      }
     }
  }
 
@@ -167,7 +229,7 @@ function App() {
       onMemo? <MemoPainel level={level} letterPairs={letterPairs}/> 
       : onRecall ? <RecallPainel pairsToCheck={pairsToCheck} setPairsToCheck={setPairsToCheck}/>
       : onCheck ? <CheckPainel answers={answers} pairsToCheck={pairsToCheck} letterPairs={letterPairs}/>
-      : <StartPainel parcialResult={parcialResult} numberAttempts={numberAttempts} onRight={onRight} timeMemo={timeMemo} timeRecall={timeRecall} level={level} controlLevel={controlLevel}/> 
+      : <StartPainel parcialResult={parcialResult} numberAttempts={numberAttempts} onRight={onRight} timeMemo={timeMemo} timeRecall={timeRecall} level={level} controlLevel={controlLevel} weakPairsEnabled={weakPairsEnabled} setWeakPairsEnabled={setWeakPairsEnabled} speechEnabled={speechEnabled} setSpeechEnabled={setSpeechEnabled} letters={letters} setLetters={setLetters} noDuplicateLetters={noDuplicateLetters} setNoDuplicateLetters={setNoDuplicateLetters}/>
       }
       <br/>
       <button onClick={() => controlPainel()} className="btn-large">{painel}</button>
@@ -176,10 +238,10 @@ function App() {
   );
 }
 
-function StartPainel({level, controlLevel, timeMemo, timeRecall, onRight, numberAttempts, parcialResult}) {
+function StartPainel({level, controlLevel, timeMemo, timeRecall, onRight, numberAttempts, parcialResult, weakPairsEnabled, setWeakPairsEnabled, speechEnabled, setSpeechEnabled, letters, setLetters, noDuplicateLetters, setNoDuplicateLetters}) {
   return(
     <div className="painel-start">
-      <h5>Put Your Desire Level (Max 7)</h5>
+      <h5>Select Number of Pairs (Max 11)</h5>
       <div className="painel-level">
         <button onClick={()=>controlLevel(-1)} className="waves-effect waves-light btn-large">
           <i className="material-icons">arrow_downward</i>
@@ -192,7 +254,7 @@ function StartPainel({level, controlLevel, timeMemo, timeRecall, onRight, number
       <div className="grid-infos">
         <div>
         <h5>Number Attempts: {numberAttempts}</h5>
-        <h5>Last Result: {onRight === null ? "Unkown" : onRight ? "Right" : "Wrong"}</h5>
+        <h5>Last Result: {onRight === null ? "Unknown" : onRight ? "Right" : "Wrong"}</h5>
         </div>
         <div>
         <h5>Total Right: {parcialResult[0]}</h5>
@@ -201,6 +263,42 @@ function StartPainel({level, controlLevel, timeMemo, timeRecall, onRight, number
         <div className="times">
         <h5>Last Time Memo: {formatTime(timeMemo)}</h5>
         <h5>Last Time Recall: {formatTime(timeRecall)}</h5>
+        </div>
+      </div>
+      <div className="letters-input-row">
+        <label htmlFor="letters-input">Active letters:</label>
+        <input id="letters-input" type="text" value={letters} onChange={e => setLetters(e.target.value.toUpperCase().replace(/[^A-Z]/g, ""))} maxLength={26} />
+        <span className="tooltip-icon">?
+          <span className="tooltip-text">The pool of letters used to generate pairs. Enter any letters you want to practise.</span>
+        </span>
+      </div>
+      <div className="toggle-options">
+        <div className="toggle-row">
+          <label>
+            <input type="checkbox" checked={noDuplicateLetters} onChange={e => setNoDuplicateLetters(e.target.checked)} />
+            <span> No duplicate letters</span>
+          </label>
+          <span className="tooltip-icon">?
+            <span className="tooltip-text">When enabled, both letters in a pair will always be different (e.g. no AA, BB) — useful for BLD. When disabled, pairs like AA can appear — useful for Clock.</span>
+          </span>
+        </div>
+        <div className="toggle-row">
+          <label>
+            <input type="checkbox" checked={weakPairsEnabled} onChange={e => setWeakPairsEnabled(e.target.checked)} />
+            <span> Weak pairs enabled</span>
+          </label>
+          <span className="tooltip-icon">?
+            <span className="tooltip-text">Pairs you get wrong will appear more often to help you practice them.</span>
+          </span>
+        </div>
+        <div className="toggle-row">
+          <label>
+            <input type="checkbox" checked={speechEnabled} onChange={e => setSpeechEnabled(e.target.checked)} />
+            <span> Speech enabled</span>
+          </label>
+          <span className="tooltip-icon">?
+            <span className="tooltip-text">Reads out each letter pair aloud when memorisation begins.</span>
+          </span>
         </div>
       </div>
     </div>
@@ -220,7 +318,7 @@ function MemoPainel({letterPairs}){
 function RecallPainel({pairsToCheck, setPairsToCheck}){
   return(
     <div>
-    <h5>{"Put the pairs in the right order using space between them:"}</h5>
+    <h5>{"Enter the pairs in the right order:"}</h5>
     <br/>
     <input type="text" value={pairsToCheck} onChange={e => setPairsToCheck(e.target.value.toUpperCase())} autoFocus></input>
     </div>

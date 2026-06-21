@@ -14,4 +14,15 @@ export const generateRandom = (amount, max) => {
     arrRandoms.push(random);
   }
   return arrRandoms;
-} 
+}
+
+export const generateRandomUnique = (amount, max) => {
+  let arrRandoms = [];
+  while (arrRandoms.length < amount){
+    let random = Math.floor(Math.random() * max);
+    if (!arrRandoms.some(item => item === random)){
+      arrRandoms.push(random);
+    }
+  }
+  return arrRandoms;
+}
